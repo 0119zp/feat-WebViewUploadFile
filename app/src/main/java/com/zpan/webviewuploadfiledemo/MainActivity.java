@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -132,14 +133,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-        if (filePath != null) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            mFileFromCamera = new File(filePath, System.nanoTime() + ".jpg");
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mFileFromCamera));
-            startActivityForResult(intent, REQUEST_FILE_CAMERA_CODE);
+        mFileFromCamera = new File(filePath, System.nanoTime() + ".jpg");
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Uri imgUrl;
+        if (getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.M) {
+            String authority = "com.zpan.webviewuploadfiledemo.UploadFileProvider";
+            imgUrl = FileProvider.getUriForFile(this, authority, mFileFromCamera);
         } else {
-            Toast.makeText(this, "没有存储路径,无法拍照", Toast.LENGTH_SHORT).show();
+            imgUrl = Uri.fromFile(mFileFromCamera);
         }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUrl);
+        startActivityForResult(intent, REQUEST_FILE_CAMERA_CODE);
     }
 
     @Override
