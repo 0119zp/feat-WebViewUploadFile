@@ -153,6 +153,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_CANCELED) {
+            if (mUploadMsg != null) {
+                mUploadMsg.onReceiveValue(null);
+                mUploadMsg = null;
+                return;
+            }
+            if (mUploadMsgs != null) {
+                mUploadMsgs.onReceiveValue(null);
+                mUploadMsgs = null;
+                return;
+            }
+        }
         switch (requestCode) {
             case REQUEST_SELECT_FILE_CODE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
