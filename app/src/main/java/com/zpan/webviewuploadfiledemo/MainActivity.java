@@ -66,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
                 showSelectPictrueDialog(1, fileChooserParams);
             }
         });
+        String htmlSrc = "<html>" +
+                "<input type=\"file\" accept=\"image/*\" multiple=\"multiple\">" +
+                "</html>";
+        webView.loadData(htmlSrc,"text/html", "UTF-8");
     }
 
     /**
