@@ -111,12 +111,14 @@ public class MainActivity extends AppCompatActivity {
                         mUploadMsgs = null;
                     }
                 }
+                selectPicDialog.dismiss();
             }
         });
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 takeCameraPhoto();
+                selectPicDialog.dismiss();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
