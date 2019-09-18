@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class ZpWebView extends WebView {
 
@@ -28,7 +29,7 @@ public class ZpWebView extends WebView {
     private void initWebView() {
         webChromeClient = new ZpWebChromeClient();
         setWebChromeClient(webChromeClient);
-
+        setWebViewClient(new ZpWebViewClient());
         WebSettings webviewSettings = getSettings();
         // 不支持缩放
         webviewSettings.setSupportZoom(false);
@@ -42,10 +43,14 @@ public class ZpWebView extends WebView {
         webviewSettings.setAllowFileAccess(true);
         webviewSettings.setAppCacheMaxSize(1024 * 1024 * 8);
         webviewSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webviewSettings.setSupportMultipleWindows(true);
     }
 
     public void setOpenFileChooserCallBack(ZpWebChromeClient.OpenFileChooserCallBack callBack) {
         webChromeClient.setOpenFileChooserCallBack(callBack);
     }
 
+    public void setCreateWindowCallBack(ZpWebChromeClient.CreateWindowCallBack callBack) {
+        webChromeClient.setCreateWindowCallBack(callBack);
+    }
 }
