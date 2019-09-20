@@ -1,5 +1,6 @@
 package com.zpan.webviewuploadfiledemo;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -23,6 +24,7 @@ import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * @author zpan
@@ -154,19 +156,23 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "设备无摄像头", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-        mFileFromCamera = new File(filePath, System.nanoTime() + ".jpg");
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri imgUrl;
-        if (getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.M) {
-            String authority = "com.zpan.webviewuploadfiledemo.UploadFileProvider";
-            imgUrl = FileProvider.getUriForFile(this, authority, mFileFromCamera);
+        if (!EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            EasyPermissions.requestPermissions(this, "need use storage", 200, Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
         } else {
-            imgUrl = Uri.fromFile(mFileFromCamera);
+            String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
+            mFileFromCamera = new File(filePath, System.nanoTime() + ".jpg");
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            Uri imgUrl;
+            if (getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.M) {
+                String authority = "com.zpan.webviewuploadfiledemo.UploadFileProvider";
+                imgUrl = FileProvider.getUriForFile(this, authority, mFileFromCamera);
+            } else {
+                imgUrl = Uri.fromFile(mFileFromCamera);
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUrl);
+            startActivityForResult(intent, REQUEST_FILE_CAMERA_CODE);
         }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUrl);
-        startActivityForResult(intent, REQUEST_FILE_CAMERA_CODE);
     }
 
     @Override
