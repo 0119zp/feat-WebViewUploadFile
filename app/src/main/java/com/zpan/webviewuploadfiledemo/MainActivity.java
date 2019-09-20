@@ -8,15 +8,19 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,12 +43,13 @@ public class MainActivity extends AppCompatActivity {
     // 相机拍照返回的图片文件
     private File mFileFromCamera;
     private BottomSheetDialog selectPicDialog;
+    private boolean mIsOpenCreateWindow;
+    private WindowWebFragment mNewWindowWebFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initView();
     }
 
@@ -66,6 +71,21 @@ public class MainActivity extends AppCompatActivity {
                 showSelectPictrueDialog(1, fileChooserParams);
             }
         });
+        webView.setCreateWindowCallBack(new ZpWebChromeClient.CreateWindowCallBack() {
+            @Override
+            public void onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
+                mIsOpenCreateWindow = true;
+                mNewWindowWebFragment = WindowWebFragment.newInstance();
+                mNewWindowWebFragment.setMessage(resultMsg);
+                getSupportFragmentManager().beginTransaction().
+                        add(R.id.container_for_fragment, mNewWindowWebFragment).commit();
+            }
+        });
+//        String htmlSrc = "<html>" +
+//                "<input type=\"file\" accept=\"image/*\" multiple=\"multiple\">" +
+//                "</html>";
+        String htmlSrc = "<a href=\"https://www.baidu.com\" target=\"_blank\">百度一下</a>";
+        webView.loadData(htmlSrc, "text/html", "UTF-8");
     }
 
     /**
@@ -107,12 +127,14 @@ public class MainActivity extends AppCompatActivity {
                         mUploadMsgs = null;
                     }
                 }
+                selectPicDialog.dismiss();
             }
         });
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 takeCameraPhoto();
+                selectPicDialog.dismiss();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
@@ -149,6 +171,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_CANCELED) {
+            if (mUploadMsg != null) {
+                mUploadMsg.onReceiveValue(null);
+                mUploadMsg = null;
+                return;
+            }
+            if (mUploadMsgs != null) {
+                mUploadMsgs.onReceiveValue(null);
+                mUploadMsgs = null;
+                return;
+            }
+        }
         switch (requestCode) {
             case REQUEST_SELECT_FILE_CODE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -196,6 +230,24 @@ public class MainActivity extends AppCompatActivity {
                 mUploadMsgs.onReceiveValue(new Uri[]{result});
                 mUploadMsgs = null;
             }
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void onBack() {
+        if (mIsOpenCreateWindow) {
+            getSupportFragmentManager().beginTransaction().remove(mNewWindowWebFragment).commit();
+            mIsOpenCreateWindow = false;
+        } else {
+            finish();
         }
     }
 }
