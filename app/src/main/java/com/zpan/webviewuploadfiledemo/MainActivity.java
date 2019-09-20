@@ -7,14 +7,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,24 +22,26 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 
+/**
+ * @author zpan
+ */
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_SELECT_FILE_CODE = 100;
     private static final int REQUEST_FILE_CHOOSER_CODE = 101;
     private static final int REQUEST_FILE_CAMERA_CODE = 102;
-    // 默认图片压缩大小（单位：K）
+    /** 默认图片压缩大小（单位：K） */
     public static final int IMAGE_COMPRESS_SIZE_DEFAULT = 400;
-    // 压缩图片最小高度
+    /** 压缩图片最小高度 */
     public static final int COMPRESS_MIN_HEIGHT = 900;
-    // 压缩图片最小宽度
+    /** 压缩图片最小宽度 */
     public static final int COMPRESS_MIN_WIDTH = 675;
 
     private ValueCallback<Uri> mUploadMsg;
     private ValueCallback<Uri[]> mUploadMsgs;
-    // 相机拍照返回的图片文件
+    /** 相机拍照返回的图片文件 */
     private File mFileFromCamera;
     private BottomSheetDialog selectPicDialog;
     private boolean mIsOpenCreateWindow;
@@ -63,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void showFileChooserCallBack(ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+            public void showFileChooserCallBack(ValueCallback<Uri[]> filePathCallback,
+                WebChromeClient.FileChooserParams fileChooserParams) {
                 if (mUploadMsgs != null) {
                     mUploadMsgs.onReceiveValue(null);
                 }
@@ -78,13 +80,12 @@ public class MainActivity extends AppCompatActivity {
                 mNewWindowWebFragment = WindowWebFragment.newInstance();
                 mNewWindowWebFragment.setMessage(resultMsg);
                 getSupportFragmentManager().beginTransaction().
-                        add(R.id.container_for_fragment, mNewWindowWebFragment).commit();
+                    add(R.id.container_for_fragment, mNewWindowWebFragment).commit();
             }
         });
-//        String htmlSrc = "<html>" +
-//                "<input type=\"file\" accept=\"image/*\" multiple=\"multiple\">" +
-//                "</html>";
-        String htmlSrc = "<a href=\"https://www.baidu.com\" target=\"_blank\">百度一下</a>";
+        String htmlSrc = "<html>"
+            + "<input style=\"font-size:40px;margin:40px 0px 0px 40px;\" type=\"file\" accept=\"image/*\" multiple=\"multiple\">"
+            + "</html>";
         webView.loadData(htmlSrc, "text/html", "UTF-8");
     }
 
@@ -204,6 +205,8 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_FILE_CAMERA_CODE:
                 takePictureFromCamera();
                 break;
+            default:
+                break;
         }
     }
 
@@ -227,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 mUploadMsg = null;
             }
             if (mUploadMsgs != null) {
-                mUploadMsgs.onReceiveValue(new Uri[]{result});
+                mUploadMsgs.onReceiveValue(new Uri[] { result });
                 mUploadMsgs = null;
             }
         }
