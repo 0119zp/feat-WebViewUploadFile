@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <paths>
-        <files-path
-            name="my_images"
-            path="images/" />
-
-        <files-path
-            name="my_docs"
-            path="docs/" />
-    </paths>
-</resources>
+<paths>
+    <external-path
+        name="my_images"
+        path="Pictures"/>
+</paths>

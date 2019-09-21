@@ -24,6 +24,9 @@ import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
@@ -160,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
             EasyPermissions.requestPermissions(this, "need use storage", 200, Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
         } else {
-            String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-            mFileFromCamera = new File(filePath, System.nanoTime() + ".jpg");
+            mFileFromCamera = getFileFromCamera();
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             Uri imgUrl;
             if (getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.M) {
@@ -173,6 +175,22 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUrl);
             startActivityForResult(intent, REQUEST_FILE_CAMERA_CODE);
         }
+    }
+
+    private File getFileFromCamera() {
+        File imageFile = null;
+        String storagePath;
+        File storageDir;
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        try {
+            storagePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+            storageDir = new File(storagePath);
+            storageDir.mkdirs();
+            imageFile = File.createTempFile(timeStamp, ".jpg", storageDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return imageFile;
     }
 
     @Override
